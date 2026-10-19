@@ -13,6 +13,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import { getRole } from "../utils/auth";
 
 // Menu dikelompokkan supaya mudah dipindai. Format item: [path, label, ikon]
 const menuAdmin = [
@@ -65,14 +66,10 @@ function readUser() {
 }
 
 export default function Sidebar({ badges = {} }) {
-  const user = readUser();
 
-  const role = String(user.frontendRole || user.role || "")
-    .trim()
-    .toLowerCase();
-
-  const isAdmin = ["admin", "owner"].includes(role);
-  const isKasir = ["karyawan", "kasir", "user"].includes(role);
+  const role = getRole();
+  const isAdmin = role === "admin";
+  const isKasir = role === "kasir";
 
   const groups = isAdmin ? menuAdmin : isKasir ? menuKasir : [];
   const homePath = isAdmin ? "/dashboard" : "/pos";

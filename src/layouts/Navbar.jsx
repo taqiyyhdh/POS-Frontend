@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, LogOut } from "lucide-react";
+import { getRole } from "../utils/auth";
 
 const ROLE_LABEL = {
   admin: "Admin",
@@ -22,9 +23,7 @@ export default function Navbar({
   const navigate = useNavigate();
   const user = readUser();
 
-  const role = String(user.frontendRole || user.role || "")
-    .trim()
-    .toLowerCase();
+  const role = getRole(); 
   const displayName =
     user.name || user.nama || user.username || user.email || "Pengguna";
   const roleLabel = ROLE_LABEL[role] || "Pengguna";

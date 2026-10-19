@@ -31,11 +31,17 @@ export const getToken = () => {
   return localStorage.getItem("token");
 };
 
-// AMBIL USER
+// AMBIL USER (null jika belum ada atau datanya rusak)
 export const getUser = () => {
   const user = localStorage.getItem("user");
+  if (!user) return null;
 
-  return user ? JSON.parse(user) : null;
+  try {
+    const parsed = JSON.parse(user);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
 };
 
 // CEK LOGIN

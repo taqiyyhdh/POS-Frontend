@@ -11,31 +11,15 @@ import Pos from "./pages/Pos";
 import TransactionHistory from "./pages/TransactionHistory";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LaporanUangKeluar from "./pages/Reports/LaporanUangKeluar";
+import { getRole, getHomePath, isLoggedIn } from "./utils/auth";
 
-// Komponen pembatas: Jika sudah login, dilarang masuk ke halaman login/landing
+// Komponen pembatas: Jika sudah login, dilarang masuk ke halaman login.
+// Admin diarahkan ke dashboard, kasir diarahkan ke POS.
 function PublicOnlyRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const userStr = localStorage.getItem("user");
+  const role = getRole();
 
-  if (token && userStr) {
-    let user = null;
-    try {
-      user = JSON.parse(userStr);
-    } catch (e) {
-      // Jika parsing error, abaikan
-    }
-
-    if (user) {
-      const userRole = String(user.role || "").trim().toLowerCase();
-      const frontRole = String(user.frontendRole || "").trim().toLowerCase();
-
-      // Jika role-nya admin atau owner, arahkan ke dashboard. Jika kasir, arahkan ke pos.
-      if (userRole === "admin" || userRole === "owner" || frontRole === "admin") {
-        return <Navigate to="/dashboard" replace />;
-      } else if (frontRole === "kasir") {
-        return <Navigate to="/pos" replace />;
-      }
-    }
+  if (isLoggedIn() && role) {
+    return <Navigate to={getHomePath(role)} replace />;
   }
 
   return children;
@@ -59,7 +43,7 @@ function App() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Dashboard />
           </ProtectedRoute>
         }
@@ -68,7 +52,7 @@ function App() {
       <Route
         path="/user"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <User />
           </ProtectedRoute>
         }
@@ -77,7 +61,7 @@ function App() {
       <Route
         path="/product"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Product />
           </ProtectedRoute>
         }
@@ -86,7 +70,7 @@ function App() {
       <Route
         path="/category"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Category />
           </ProtectedRoute>
         }
@@ -95,7 +79,7 @@ function App() {
       <Route
         path="/laporan"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner"]}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <LaporanPenjualan />
           </ProtectedRoute>
         }
@@ -105,7 +89,7 @@ function App() {
       <Route
         path="/pos"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner", "kasir"]}>
+          <ProtectedRoute allowedRoles={["admin", "kasir"]}>
             <Pos />
           </ProtectedRoute>
         }
@@ -115,7 +99,7 @@ function App() {
       <Route
         path="/transactions"
         element={
-          <ProtectedRoute allowedRoles={["admin", "owner", "kasir"]}>
+          <ProtectedRoute allowedRoles={["admin", "kasir"]}>
             <TransactionHistory />
           </ProtectedRoute>
         }
@@ -127,7 +111,8 @@ function App() {
             <LaporanUangKeluar />
           </ProtectedRoute>
         }
-        />
+      />
+
       {/* URL tidak dikenal */}
       <Route
         path="*"

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Store, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { login } from "../../services/authService";
+import { login, logout } from "../../services/authService";
+import { getRole, getHomePath } from "../../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -51,26 +52,22 @@ export default function Login() {
         formData.identity,
         formData.password
       );
-
-      console.log("Login berhasil:", data);
-
       // Pastikan user tersedia
       if (!data.user) {
         alert("Data user tidak ditemukan");
         return;
       }
 
-      // ==============================
-      // REDIRECT BERDASARKAN ROLE
-      // ==============================
+      // Arahkan berdasarkan role: admin ke dashboard, kasir ke POS
+      const role = getRole();
 
-      if (data.user.role === "admin") {
-        navigate("/dashboard", { replace: true });
-      } else if (data.user.role === "kasir") {
-        navigate("/dashboard", { replace: true });
-      } else {
+      if (!role) {
+        logout();
         alert("Role user tidak dikenali");
+        return;
       }
+
+      navigate(getHomePath(role), { replace: true });
     } catch (error) {
       console.error("Login error:", error);
 
